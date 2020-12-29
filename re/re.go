@@ -12,3 +12,11 @@ func ReplaceAll(com string, src string, repl string)string{
 	rg := regexp.MustCompile(com)
 	return rg.ReplaceAllString(src, repl)
 }
+// 是否存在匹配
+func IsExist(com string, src string)bool{
+	results := FindAll(com, src)
+	if len(results) > 0{
+		return true
+	}
+	return false
+}
