@@ -3,10 +3,10 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/kkkunny/GoMy/re"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
-	"my/re"
 	"net"
 	"net/http"
 	"net/url"
