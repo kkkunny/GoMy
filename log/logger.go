@@ -84,7 +84,7 @@ func (this *Logger) WriteErrorLog(msg string) error {
 	return this.WriteLog(out)
 }
 
-// 写入错误
+// 写入错误.
 func (this *Logger) WriteError(err error) error {
 	if err != nil {
 		out := this.GetLogText(Error, err.Error(), true, true, 4)
