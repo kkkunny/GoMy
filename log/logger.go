@@ -30,8 +30,8 @@ type Logger struct {
 }
 
 // 获取当前文件名和行号
-func (this *Logger) getCurFileAndLine() (string, int) {
-	_, file, line, ok := runtime.Caller(3)
+func (this *Logger) getCurFileAndLine(skip int) (string, int) {
+	_, file, line, ok := runtime.Caller(skip)
 	if !ok {
 		file = "???"
 		line = -1
@@ -53,13 +53,13 @@ func (this *Logger) WriteLog(msg string) error {
 }
 
 // 获取日志文本
-func (this *Logger) GetLogText(tp logType, msg string, time bool, file bool) string {
+func (this *Logger) GetLogText(tp logType, msg string, time bool, file bool, skip int) string {
 	var text = "[" + string(tp) + "]"
 	if time {
 		text += "[" + this.getCurTime() + "]"
 	}
 	if file {
-		file, line := this.getCurFileAndLine()
+		file, line := this.getCurFileAndLine(skip)
 		text += ":{" + file + " " + strconv.Itoa(line) + "}"
 	}
 	text += ":" + msg + "\n"
@@ -68,26 +68,27 @@ func (this *Logger) GetLogText(tp logType, msg string, time bool, file bool) str
 
 // 写入信息日志
 func (this *Logger) WriteInfoLog(msg string) error {
-	out := this.GetLogText(Info, msg, true, true)
+	out := this.GetLogText(Info, msg, true, true, 3)
 	return this.WriteLog(out)
 }
 
 // 写入警报日志
 func (this *Logger) WriteWarningLog(msg string) error {
-	out := this.GetLogText(Warning, msg, true, true)
+	out := this.GetLogText(Warning, msg, true, true, 3)
 	return this.WriteLog(out)
 }
 
 // 写入错误日志
 func (this *Logger) WriteErrorLog(msg string) error {
-	out := this.GetLogText(Error, msg, true, true)
+	out := this.GetLogText(Error, msg, true, true, 3)
 	return this.WriteLog(out)
 }
 
 // 写入错误
 func (this *Logger) WriteError(err error) error {
 	if err != nil {
-		return this.WriteErrorLog(err.Error())
+		out := this.GetLogText(Error, err.Error(), true, true, 4)
+		return this.WriteLog(out)
 	} else {
 		return errors.New("error is nil")
 	}
