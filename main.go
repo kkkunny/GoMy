@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"strconv"
+	"github.com/kkkunny/GoMy/strings"
 )
 
 func main() {
-	text := "08"
-	fmt.Println(strconv.Atoi(text))
+	text := "你好sda"
+	fmt.Println(strings.GetLength(text))
 }

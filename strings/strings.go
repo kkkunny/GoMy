@@ -17,3 +17,11 @@ func Strip(text string)string{
 	}
 	return text
 }
+// 获取字符串长度
+func GetLength(data string)int{
+	var length int
+	for _, _ = range data{
+		length++
+	}
+	return length
+}
