@@ -7,7 +7,7 @@ func FindAll(com string, src string)[][]string{
 	rg := regexp.MustCompile(com)
 	return rg.FindAllStringSubmatch(src, -1)
 }
-// 替换所有正则
+// 替换所有正则，${2}可获取子匹配
 func ReplaceAll(com string, src string, repl string)string{
 	rg := regexp.MustCompile(com)
 	return rg.ReplaceAllString(src, repl)

@@ -167,9 +167,6 @@ func (n HtmlNode) Xpath(xpath string) *HtmlNode {
 	if node != nil && childs_xpath != "" {
 		node = node.Xpath(childs_xpath)
 	}
-	if node == nil {
-		node = &HtmlNode{}
-	}
 	return node
 }
 
