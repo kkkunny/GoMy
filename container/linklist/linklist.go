@@ -165,3 +165,11 @@ func (this *LinkList) GetString()string{
 	}
 	return str + "]"
 }
+// 函数遍历
+func (this *LinkList) ErgodicFunc(handle func(interface{})){
+	cursor := this.head
+	for cursor != nil{
+		handle(cursor.elem)
+		cursor = cursor.next
+	}
+}
