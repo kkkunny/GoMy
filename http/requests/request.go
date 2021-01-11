@@ -41,9 +41,11 @@ func (this *Request) Get(url string, params Params, charsets ...string) (*Respon
 		return nil, err
 	}
 	// 参数
-	request.URL.RawQuery, err = params.ToUrlQuery()
-	if err != nil {
-		return nil, err
+	if params != nil {
+		request.URL.RawQuery, err = params.ToUrlQuery()
+		if err != nil {
+			return nil, err
+		}
 	}
 	// 请求头
 	request.Header = this.Headers

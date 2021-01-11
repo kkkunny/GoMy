@@ -1,8 +1,8 @@
 package log
 
 import (
-	"errors"
 	"io"
+	"os"
 	"runtime"
 	"strconv"
 	"sync"
@@ -23,10 +23,16 @@ func New(writers ...io.Writer) *Logger {
 	return &Logger{lock: sync.Mutex{}, write: io.MultiWriter(writers...)}
 }
 
+// 新建一个写入文件的日志管理器
+func NewToFile(file *os.File) *Logger {
+	return &Logger{lock: sync.Mutex{}, file: file}
+}
+
 // 日志管理器
 type Logger struct {
 	lock  sync.Mutex
 	write io.Writer
+	file  *os.File
 }
 
 // 获取当前文件名和行号
@@ -48,7 +54,12 @@ func (this *Logger) getCurTime() string {
 func (this *Logger) WriteLog(msg string) error {
 	this.lock.Lock()
 	defer this.lock.Unlock()
-	_, err := io.WriteString(this.write, msg)
+	var err error
+	if this.file == nil {
+		_, err = io.WriteString(this.write, msg)
+	} else {
+		_, err = this.file.WriteString(msg)
+	}
 	return err
 }
 
@@ -82,14 +93,4 @@ func (this *Logger) WriteWarningLog(msg string) error {
 func (this *Logger) WriteErrorLog(msg string) error {
 	out := this.GetLogText(Error, msg, true, true, 3)
 	return this.WriteLog(out)
-}
-
-// 写入错误.
-func (this *Logger) WriteError(err error) error {
-	if err != nil {
-		out := this.GetLogText(Error, err.Error(), true, true, 3)
-		return this.WriteLog(out)
-	} else {
-		return errors.New("error is nil")
-	}
 }
