@@ -1,11 +1,18 @@
 package main
 
 import (
+	"GoMy/worker"
 	"fmt"
-	"github.com/kkkunny/GoMy/strings"
+	"time"
 )
 
 func main() {
-	text := "你好sda"
-	fmt.Println(strings.GetLength(text))
+	wok := worker.NewWorker(1, Test, true)
+	wok.Start()
+	wok.Wait()
+}
+
+func Test() {
+	fmt.Println(11111)
+	time.Sleep(1 * time.Second)
 }
