@@ -71,8 +71,9 @@ func (this *LinkList) Add(index int, elem interface{}) {
 		this.end = node
 	} else {
 		node.next = cursor
-		cursor.prev = node
+		node.prev = cursor.prev
 		cursor.prev.next = node
+		cursor.prev = node
 	}
 	this.length++
 }

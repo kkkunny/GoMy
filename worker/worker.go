@@ -8,7 +8,7 @@ const (
 )
 
 // 新建一个工作者
-func NewWorker(num int, fun func(), loop ...bool) *Worker {
+func NewWorker(num int, fun func() bool, loop ...bool) *Worker {
 	worker := &Worker{
 		threadNum: num,
 		task:      fun,
@@ -23,7 +23,7 @@ func NewWorker(num int, fun func(), loop ...bool) *Worker {
 // 工作者
 type Worker struct {
 	threadNum int            // 协程数
-	task      func()         // 任务
+	task      func() bool    // 任务
 	status    string         // 状态
 	loop      bool           // 是否循环
 	wait      sync.WaitGroup // 等待锁
@@ -51,7 +51,9 @@ func (this *Worker) runFunc() func() {
 		fun = func() {
 			for {
 				if this.status == StatusRun {
-					this.task()
+					if result := this.task(); !result {
+						return
+					}
 				}
 			}
 		}
