@@ -15,10 +15,16 @@ type Middleware struct {
 }
 
 // 新建一个默认配置的服务器
-func NewDefault() *Web {
+func NewDefault(addr ...string) *Web {
 	serveMux := NewServerMux()
+	var address string
+	if len(addr) == 0{
+		address = "127.0.0.1:8080"
+	}else{
+		address = addr[0]
+	}
 	server := &http.Server{
-		Addr:    "127.0.0.1:8080",
+		Addr:    address,
 		Handler: serveMux,
 	}
 	web := &Web{server: server, serveMux: serveMux}

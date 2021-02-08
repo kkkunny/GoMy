@@ -7,12 +7,12 @@ import (
 
 // 新建一个队列
 func New() *Queue {
-	return &Queue{lock: sync.Mutex{}, content: linklist.New()}
+	return &Queue{lock: &sync.Mutex{}, content: linklist.New()}
 }
 
 // 队列
 type Queue struct {
-	lock    sync.Mutex
+	lock    *sync.Mutex
 	content *linklist.LinkList
 }
 

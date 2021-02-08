@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/kkkunny/GoMy/re"
 	"html/template"
 	"io"
@@ -13,6 +12,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	"bytes"
 )
 
 // 上传文件
@@ -106,6 +106,7 @@ func (this *Context) GetData() []byte {
 	if err != nil {
 		return []byte{}
 	}
+	this.req.Body = ioutil.NopCloser(bytes.NewReader(datas))
 	return datas
 }
 
@@ -123,7 +124,6 @@ func (this *Context) getPostDataFromData(key string) string {
 func (this *Context) getPostDataXFormUrlencoded(key string) string {
 	u, err := url.Parse("/test?" + string(this.GetData()))
 	if err == nil && u != nil {
-		fmt.Println(u)
 		return u.Query().Get(key)
 	}
 	return ""
