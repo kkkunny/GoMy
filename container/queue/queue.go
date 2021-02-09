@@ -7,17 +7,19 @@ import (
 
 // 新建一个队列
 func New() *Queue {
-	return &Queue{lock: &sync.Mutex{}, content: linklist.New()}
+	return &Queue{lock: &sync.RWMutex{}, content: linklist.New()}
 }
 
 // 队列
 type Queue struct {
-	lock    *sync.Mutex
+	lock    *sync.RWMutex
 	content *linklist.LinkList
 }
 
 // 转化为文本
 func (this *Queue) ToString() string {
+	this.lock.RLock()
+	defer this.lock.RUnlock()
 	return this.content.ToString()
 }
 
@@ -42,5 +44,14 @@ func (this *Queue) Put(value interface{}) {
 
 // 获取长度
 func (this *Queue) GetLength() int {
+	this.lock.RLock()
+	defer this.lock.RUnlock()
 	return this.content.GetLength()
+}
+
+// 是否有该值
+func (this *Queue) IsExist(value interface{})bool{
+	this.lock.RLock()
+	defer this.lock.RUnlock()
+	return this.content.IsExist(value)
 }
