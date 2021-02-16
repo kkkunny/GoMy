@@ -1,14 +1,20 @@
 package main
 
 import (
-	myimage "GoMy/image"
-	"image"
+	"GoMy/crypto"
+	"fmt"
 )
 
 func main() {
-	temp := image.NewRGBA(image.Rect(0, 0, 100, 100))
-	img := myimage.Convert(temp)
-	if err := img.Save("./result.bmp"); err != nil {
+	content := "Hello World"
+	result, err := crypto.EncodeSha3_256([]byte(content), []byte{})
+	if err != nil {
 		panic(err)
 	}
+	fmt.Println(result)
+	result, err = crypto.EncodeSha256([]byte(content), []byte{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result)
 }
