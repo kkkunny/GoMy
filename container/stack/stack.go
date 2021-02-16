@@ -1,7 +1,7 @@
 package stack
 
 import (
-	"github.com/kkkunny/GoMy/container/linklist"
+	"GoMy/container/linklist"
 	"sync"
 )
 

@@ -1,8 +1,10 @@
 package web
 
 import (
+	"GoMy/re"
+	"bytes"
 	"encoding/json"
-	"github.com/kkkunny/GoMy/re"
+	"fmt"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -12,7 +14,6 @@ import (
 	"net/url"
 	"strings"
 	"time"
-	"bytes"
 )
 
 // 上传文件
@@ -223,6 +224,7 @@ func (this *Context) SetStatusCode(code int) {
 
 // 返回字符串
 func (this *Context) ReturnString(code int, msg string) error {
+	fmt.Printf("返回数据:[%s]\n", msg)
 	this.SetStatusCode(code)
 	_, err := io.WriteString(this.writer, msg)
 	return err
@@ -230,11 +232,13 @@ func (this *Context) ReturnString(code int, msg string) error {
 
 // 返回404
 func (this *Context) ReturnNotFound() error {
+	fmt.Printf("返回数据:[%s]\n", "404 Page not found")
 	return this.ReturnString(http.StatusNotFound, "404 Page not found")
 }
 
 // 请求方式不支持
 func (this *Context) ReturnMethodAllowed() error {
+	fmt.Printf("返回数据:[%s]\n", "405 Request method is not allowed")
 	return this.ReturnString(http.StatusMethodNotAllowed, "405 Request method is not allowed")
 }
 
@@ -245,6 +249,7 @@ func (this *Context) ReturnJson(code int, data interface{}) error {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("返回数据:[%s]\n", string(js))
 	_, err = this.writer.Write(js)
 	return err
 }
@@ -257,6 +262,7 @@ func (this *Context) ReturnFile(reader io.Reader, filename string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("返回数据:[文件: %s, 大小: %d]\n", filename, len(datas))
 	_, err = this.writer.Write(datas)
 	return err
 }
@@ -267,6 +273,7 @@ func (this *Context) ReturnTemplate(data interface{}, path ...string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("返回数据:[模板: %v]\n", path)
 	return temp.Execute(this.writer, data)
 }
 

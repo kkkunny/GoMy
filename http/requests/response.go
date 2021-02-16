@@ -1,10 +1,10 @@
 package requests
 
 import (
+	"GoMy/charset"
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/kkkunny/GoMy/charset"
 	"golang.org/x/net/html"
 	"io"
 	"io/ioutil"
@@ -14,7 +14,7 @@ import (
 )
 
 // 将http包中的Response转换成Response
-func HttpToResponse(http_response *http.Response, charsets ...string)*Response{
+func HttpToResponse(http_response *http.Response, charsets ...string) *Response {
 	var response Response
 	// 状态码
 	response.Status = strconv.Itoa(http_response.StatusCode)
@@ -25,30 +25,32 @@ func HttpToResponse(http_response *http.Response, charsets ...string)*Response{
 	// 长度
 	response.Length = http_response.ContentLength
 	// 编码
-	if len(charsets) > 0{
+	if len(charsets) > 0 {
 		response.Charset = charsets[0]
 	}
 	return &response
 }
+
 // 回复
 type Response struct {
-	Status  string  // 状态码
-	Headers http.Header  // 回复头
-	reader  io.ReadCloser  // 读取器
-	data []byte  // 数据
-	Length int64  // 数据长度
-	Charset string  // 读取编码（以什么编码读取内容）
+	Status  string        // 状态码
+	Headers http.Header   // 回复头
+	reader  io.ReadCloser // 读取器
+	data    []byte        // 数据
+	Length  int64         // 数据长度
+	Charset string        // 读取编码（以什么编码读取内容）
 }
+
 // 获取数据体
-func (this *Response)Body()[]byte{
-	if len(this.data) == 0{
+func (this *Response) Body() []byte {
+	if len(this.data) == 0 {
 		data, err := ioutil.ReadAll(this)
-		if err != nil{
+		if err != nil {
 			return []byte{}
 		}
-		if this.Charset != ""{
+		if this.Charset != "" {
 			data, err = charset.Convert(this.Charset, "utf-8", data)
-			if err != nil{
+			if err != nil {
 				return []byte{}
 			}
 		}
@@ -56,43 +58,49 @@ func (this *Response)Body()[]byte{
 	}
 	return this.data
 }
+
 // 获取Text
-func (this *Response)Text()string{
+func (this *Response) Text() string {
 	return string(this.Body())
 }
+
 // 获取JSON
-func (this *Response)Json(data interface{})error{
+func (this *Response) Json(data interface{}) error {
 	body := this.Body()
 	return json.Unmarshal(body, data)
 }
+
 // 获取HTML
-func (this *Response)Html()(*HtmlNode, error){
+func (this *Response) Html() (*HtmlNode, error) {
 	doc, err := html.Parse(bytes.NewReader(this.Body()))
 	return &HtmlNode{doc}, err
 }
+
 // 保存成文件(适用于小文件)
-func (this *Response)SaveToFile(path string)error{
+func (this *Response) SaveToFile(path string) error {
 	_, err := os.Open(path)
-	if err == nil{
+	if err == nil {
 		return ErrFileExist
 	}
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	num, err := file.Write(this.Body())
-	if err != nil{
+	if err != nil {
 		return err
-	}else if num == 0{
+	} else if num == 0 {
 		return errors.New("No bytes were writed")
 	}
 	return file.Close()
 }
+
 // 读取数据
-func (this *Response)Read(num []byte)(int, error){
+func (this *Response) Read(num []byte) (int, error) {
 	return this.reader.Read(num)
 }
+
 // 关闭连接
-func (this *Response)Close()error{
+func (this *Response) Close() error {
 	return this.reader.Close()
 }

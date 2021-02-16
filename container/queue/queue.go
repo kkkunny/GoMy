@@ -1,7 +1,7 @@
 package queue
 
 import (
-	"github.com/kkkunny/GoMy/container/linklist"
+	"GoMy/container/linklist"
 	"sync"
 )
 
@@ -50,7 +50,7 @@ func (this *Queue) GetLength() int {
 }
 
 // 是否有该值
-func (this *Queue) IsExist(value interface{})bool{
+func (this *Queue) IsExist(value interface{}) bool {
 	this.lock.RLock()
 	defer this.lock.RUnlock()
 	return this.content.IsExist(value)

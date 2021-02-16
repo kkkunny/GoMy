@@ -1,11 +1,7 @@
 package main
 
-import (
-	"GoMy/path"
-	"fmt"
-)
+import "fmt"
 
 func main() {
-	result := path.GetFileName("C:\\d")
-	fmt.Println(result)
+	fmt.Println("Hello World")
 }
