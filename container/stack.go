@@ -1,18 +1,17 @@
-package stack
+package container
 
 import (
-	"GoMy/container/linklist"
 	"sync"
 )
 
-func New() *Stack {
-	return &Stack{lock: sync.Mutex{}, content: linklist.New()}
+func NewStack() *Stack {
+	return &Stack{lock: sync.Mutex{}, content: NewLinkList()}
 }
 
 // 栈
 type Stack struct {
 	lock    sync.Mutex
-	content *linklist.LinkList
+	content *LinkList
 }
 
 // 入栈

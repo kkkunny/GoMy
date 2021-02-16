@@ -1,4 +1,4 @@
-package linklist
+package container
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ type node struct {
 }
 
 // 新建一个链表
-func New() *LinkList {
+func NewLinkList() *LinkList {
 	return &LinkList{}
 }
 

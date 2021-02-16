@@ -1,19 +1,18 @@
-package queue
+package container
 
 import (
-	"GoMy/container/linklist"
 	"sync"
 )
 
 // 新建一个队列
-func New() *Queue {
-	return &Queue{lock: &sync.RWMutex{}, content: linklist.New()}
+func NewQueue() *Queue {
+	return &Queue{lock: &sync.RWMutex{}, content: NewLinkList()}
 }
 
 // 队列
 type Queue struct {
 	lock    *sync.RWMutex
-	content *linklist.LinkList
+	content *LinkList
 }
 
 // 转化为文本
