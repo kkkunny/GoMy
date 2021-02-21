@@ -1,4 +1,4 @@
-module GoMy
+module github.com/kkkunny/GoMy
 
 go 1.15
 
