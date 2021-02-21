@@ -1,10 +1,10 @@
 package requests
 
 import (
-	"GoMy/charset"
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/kkkunny/GoMy/charset"
 	"golang.org/x/net/html"
 	"io"
 	"io/ioutil"

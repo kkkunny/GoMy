@@ -1,10 +1,10 @@
 package web
 
 import (
-	"GoMy/re"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/kkkunny/GoMy/re"
 	"html/template"
 	"io"
 	"io/ioutil"

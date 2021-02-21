@@ -1,9 +1,9 @@
 package image
 
 import (
-	"GoMy/file"
 	"errors"
 	"fmt"
+	"github.com/kkkunny/GoMy/file"
 	"golang.org/x/image/bmp"
 	"image"
 	"image/color"
