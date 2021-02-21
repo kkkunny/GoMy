@@ -278,6 +278,7 @@ func (this *Context) ReturnTemplate(data interface{}, path ...string) error {
 }
 
 // 重定向
-func (this *Context) Redirect(url string) {
+func (this *Context) Redirect(url string) error {
 	http.Redirect(this.writer, this.req, url, http.StatusMovedPermanently)
+	return nil
 }

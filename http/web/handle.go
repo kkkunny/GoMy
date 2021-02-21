@@ -2,14 +2,15 @@ package web
 
 // 处理器接口
 type Handler interface {
-	Handle(*Context) // 处理
+	Handle(*Context) error // 处理
 }
 
 // 处理器函数
-type HandlerFunc func(*Context)
-func (this HandlerFunc) Handle(r *Context){
-	this(r)
+type HandlerFunc func(*Context) error
+
+func (this HandlerFunc) Handle(r *Context) error {
+	return this(r)
 }
 
 // 中间件函数
-type MiddleHandlerFunc func(HandlerFunc)HandlerFunc
+type MiddleHandlerFunc func(HandlerFunc) HandlerFunc

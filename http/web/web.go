@@ -84,7 +84,7 @@ func (this *Web) Static(path string) {
 	pro := fmt.Sprintf("/%s/", fileName) // 前缀
 	// 文件服务
 	fileServer := http.FileServer(http.Dir(path))
-	handle := HandlerFunc(func(ctx *Context) {
+	handle := HandlerFunc(func(ctx *Context) error {
 		if p := strings.TrimPrefix(ctx.GetUrl().Path, pro); len(p) < len(ctx.GetUrl().Path) {
 			r2 := new(http.Request)
 			*r2 = *ctx.req
@@ -93,6 +93,7 @@ func (this *Web) Static(path string) {
 			r2.URL.Path = p
 			fileServer.ServeHTTP(ctx.writer, r2)
 		}
+		return nil
 	})
 	// 路由
 	if err := this.serveMux.Handle(fileName, []string{http.MethodGet}, pro, handle); err != nil {
