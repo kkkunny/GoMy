@@ -108,6 +108,20 @@ func (this *Web) Templates(path string) {
 	}
 }
 
+// 白名单
+func (this *Web) AllowIp(ip ...string) {
+	for _, i := range ip {
+		this.serveMux.WhiteIpMaps[i] = 0
+	}
+}
+
+// 黑名单
+func (this *Web) NotAllowIp(ip ...string) {
+	for _, i := range ip {
+		this.serveMux.BlackIpMaps[i] = 0
+	}
+}
+
 // 开始监听
 func (this *Web) Run() {
 	fmt.Println("web: Web server starts running......")
