@@ -3,6 +3,7 @@ package web
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/kkkunny/GoMy/re"
 	"html/template"
@@ -287,17 +288,22 @@ func (this *Context) ReturnContent(reader io.ReadSeeker, name string) error {
 
 // 返回模板
 func (this *Context) ReturnTemplate(data interface{}, path ...string) error {
+	if len(path) == 0 {
+		return errors.New("no template")
+	}
+	mainT := path[0] // 主模板
 	fmt.Printf("返回数据:[模板: %s]\n", strings.Join(path, " "))
 	if this.mux.templatesFolder != "" {
 		for i, p := range path {
 			path[i] = this.mux.templatesFolder + p
 		}
 	}
-	temp, err := template.ParseFiles(path...)
+	temp, err := template.New(mainT).Funcs(templateFuncs).ParseFiles(path...)
 	if err != nil {
 		return err
 	}
-	return temp.Execute(this.writer, data)
+	// 模板函数
+	return temp.ExecuteTemplate(this.writer, mainT, data)
 }
 
 // 重定向

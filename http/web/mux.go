@@ -9,10 +9,15 @@ import (
 
 // 新建一个多路复用器
 func NewServerMux() *ServerMux {
-	return &ServerMux{
+	mux := &ServerMux{
 		tree:    NewRouteTree(),
 		content: make(map[string]*route),
 	}
+	// url反射
+	templateFuncs["url"] = func(name string) (string, error) {
+		return urlReflex(mux.content, name)
+	}
+	return mux
 }
 
 // 多路复用器
