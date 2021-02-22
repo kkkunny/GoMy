@@ -10,8 +10,10 @@ import (
 // 新建一个多路复用器
 func NewServerMux() *ServerMux {
 	mux := &ServerMux{
-		tree:    NewRouteTree(),
-		content: make(map[string]*route),
+		tree:        NewRouteTree(),
+		content:     make(map[string]*route),
+		WhiteIpMaps: make(map[string]byte),
+		BlackIpMaps: make(map[string]byte),
 	}
 	// url反射
 	templateFuncs["url"] = func(name string) (string, error) {
