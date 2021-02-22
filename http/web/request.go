@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -47,11 +48,12 @@ func (this *uploadFile) GetReadCloser() io.ReadCloser {
 }
 
 // 将write和request转化成context
-func NewContext(w http.ResponseWriter, r *http.Request, params map[string]string) *Context {
+func NewContext(w http.ResponseWriter, r *http.Request, params map[string]string, mux *ServerMux) *Context {
 	return &Context{
 		writer:      w,
 		req:         r,
 		routeParams: params,
+		mux:         mux,
 	}
 }
 
@@ -60,6 +62,7 @@ type Context struct {
 	writer      http.ResponseWriter
 	req         *http.Request
 	routeParams map[string]string
+	mux         *ServerMux
 }
 
 // 获取请求方式
@@ -232,14 +235,14 @@ func (this *Context) ReturnString(code int, msg string) error {
 
 // 返回404
 func (this *Context) ReturnNotFound() error {
-	fmt.Printf("返回数据:[%s]\n", "404 Page not found")
-	return this.ReturnString(http.StatusNotFound, "404 Page not found")
+	fmt.Printf("返回数据:[%s]\n", "404, Page not found")
+	return this.ReturnString(http.StatusNotFound, "404, Page not found")
 }
 
 // 请求方式不支持
-func (this *Context) ReturnMethodAllowed() error {
-	fmt.Printf("返回数据:[%s]\n", "405 Request method is not allowed")
-	return this.ReturnString(http.StatusMethodNotAllowed, "405 Request method is not allowed")
+func (this *Context) ReturnMethodNotAllowed() error {
+	fmt.Printf("返回数据:[%s]\n", "405, Request method is not allowed")
+	return this.ReturnString(http.StatusMethodNotAllowed, "405, Request method is not allowed")
 }
 
 // 返回json
@@ -255,30 +258,56 @@ func (this *Context) ReturnJson(code int, data interface{}) error {
 }
 
 // 返回文件
-func (this *Context) ReturnFile(reader io.Reader, filename string) error {
-	this.SetOneHeader("Content-Type", "application/octet-stream")
-	this.SetOneHeader("Content-Disposition", "attachment;filename="+filename)
-	datas, err := ioutil.ReadAll(reader)
+func (this *Context) ReturnFile(path string, name ...string) error {
+	file, err := os.OpenFile(path, os.O_RDONLY, 0666)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("返回数据:[文件: %s, 大小: %d]\n", filename, len(datas))
-	_, err = this.writer.Write(datas)
-	return err
+	info, err := file.Stat()
+	if err != nil {
+		return err
+	}
+	var filename string
+	if len(name) > 0 {
+		filename = name[0]
+	} else {
+		filename = info.Name()
+	}
+	fmt.Printf("返回文件:[文件名: %s, 大小: %d]\n", filename, info.Size())
+	http.ServeContent(this.writer, this.req, filename, time.Time{}, file)
+	return nil
+}
+
+// 返回数据
+func (this *Context) ReturnContent(reader io.ReadSeeker, name string) error {
+	fmt.Printf("返回数据:[数据名: %s]\n", name)
+	http.ServeContent(this.writer, this.req, name, time.Time{}, reader)
+	return nil
 }
 
 // 返回模板
 func (this *Context) ReturnTemplate(data interface{}, path ...string) error {
+	fmt.Printf("返回数据:[模板: %s]\n", strings.Join(path, " "))
+	if this.mux.templatesFolder != "" {
+		for i, p := range path {
+			path[i] = this.mux.templatesFolder + p
+		}
+	}
 	temp, err := template.ParseFiles(path...)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("返回数据:[模板: %v]\n", path)
 	return temp.Execute(this.writer, data)
 }
 
 // 重定向
-func (this *Context) Redirect(url string) error {
-	http.Redirect(this.writer, this.req, url, http.StatusMovedPermanently)
+func (this *Context) ReturnRedirect(url string) error {
+	fmt.Printf("重定向至:[url: %s]\n", url)
+	// 在路由中寻找
+	if route, ok := this.mux.content[url]; ok {
+		http.Redirect(this.writer, this.req, route.pattern, http.StatusMovedPermanently)
+	} else {
+		http.Redirect(this.writer, this.req, url, http.StatusMovedPermanently)
+	}
 	return nil
 }

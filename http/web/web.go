@@ -101,6 +101,13 @@ func (this *Web) Static(path string) {
 	}
 }
 
+// 模板文件夹
+func (this *Web) Templates(path string) {
+	if err := this.serveMux.SetTemplatesFolder(path); err != nil {
+		panic(err)
+	}
+}
+
 // 开始监听
 func (this *Web) Run() {
 	fmt.Println("web: Web server starts running......")
