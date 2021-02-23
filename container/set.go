@@ -101,3 +101,20 @@ func (this *Set) GetString() string {
 	}
 	return "{" + strings.Join(result, ", ") + "}"
 }
+
+// 获取一个值
+func (this *Set) Get() interface{} {
+	for k, _ := range this.data {
+		return k
+	}
+	return nil
+}
+
+// 转换成切片
+func (this *Set) ToArray() []interface{} {
+	var result []interface{}
+	for k, _ := range this.data {
+		result = append(result, k)
+	}
+	return result
+}
