@@ -5,7 +5,8 @@ import "sync"
 // 新建一个协程池
 func NewGoroutinePool(num int) *GoroutinePool {
 	g := &GoroutinePool{
-		mutex:      sync.RWMutex{},
+		mutex:      &sync.RWMutex{},
+		complete:   make(chan int, num),
 		number:     num,
 		busyNumber: 0,
 	}
@@ -13,10 +14,12 @@ func NewGoroutinePool(num int) *GoroutinePool {
 }
 
 // 协程池
+// 线程不安全
 type GoroutinePool struct {
-	mutex      sync.RWMutex // 锁
-	number     int          // 数量
-	busyNumber int          // 工作数量
+	mutex      *sync.RWMutex // 条件锁
+	complete   chan int      // 任务完成信号
+	number     int           // 数量
+	busyNumber int           // 工作数量
 }
 
 // 是否全部空闲
@@ -40,26 +43,37 @@ func (this *GoroutinePool) AnyFree() bool {
 	return this.busyNumber < this.number
 }
 
-// 是否有空闲协程
-func (this *GoroutinePool) hasFree() bool {
-	return this.busyNumber < this.number
-}
-
-// 让一个协程进行某个动作
-func (this *GoroutinePool) Do(task func()) bool {
+// 任务
+func (this *GoroutinePool) task(task func()) {
+	task()
 	this.mutex.Lock()
 	defer this.mutex.Unlock()
-	if !this.hasFree() {
-		return false
-	}
-	go func() {
-		task()
-		this.mutex.Lock()
-		defer this.mutex.Unlock()
-		this.busyNumber--
-	}()
+	this.busyNumber--
+	this.complete <- 1
+}
+
+// 做任务
+func (this *GoroutinePool) doTask(task func()) {
+	this.mutex.Lock()
+	defer this.mutex.Unlock()
+	go this.task(task)
 	this.busyNumber++
-	return true
+}
+
+// 用空闲协程进行一项任务
+func (this *GoroutinePool) Do(task func()) {
+loop:
+	for {
+		select {
+		case <-this.complete:
+			break loop
+		default:
+			if this.AnyFree() {
+				break loop
+			}
+		}
+	}
+	this.doTask(task)
 }
 
 // 当前工作线程数量
