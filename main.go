@@ -2,18 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/kkkunny/GoMy/container"
+	"github.com/kkkunny/GoMy/pool"
+	"time"
 )
 
 func main() {
-	set1 := container.NewSet()
-	for i := 0; i < 10; i++ {
-		set1.Add(i)
-	}
-	set2 := container.NewSet()
-	for i := 5; i < 15; i++ {
-		set2.Add(i)
-	}
-	set1.Differed(set2)
-	fmt.Println(set1.GetString())
+	pl := pool.NewGoroutinePool(10)
+	pl.Do(func() {
+		for {
+			fmt.Println(time.Now())
+			time.Sleep(1 * time.Second)
+		}
+	})
+	fmt.Println(pl.GetBusyNumber())
 }
