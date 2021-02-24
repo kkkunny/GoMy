@@ -111,14 +111,14 @@ func (this *Web) Templates(path string) {
 // 白名单
 func (this *Web) AllowIp(ip ...string) {
 	for _, i := range ip {
-		this.serveMux.WhiteIpMaps[i] = 0
+		this.serveMux.whiteIpMaps[i] = 0
 	}
 }
 
 // 黑名单
 func (this *Web) NotAllowIp(ip ...string) {
 	for _, i := range ip {
-		this.serveMux.BlackIpMaps[i] = 0
+		this.serveMux.blackIpMaps[i] = 0
 	}
 }
 

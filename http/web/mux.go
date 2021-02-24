@@ -12,8 +12,8 @@ func NewServerMux() *ServerMux {
 	mux := &ServerMux{
 		tree:        NewRouteTree(),
 		content:     make(map[string]*route),
-		WhiteIpMaps: make(map[string]byte),
-		BlackIpMaps: make(map[string]byte),
+		whiteIpMaps: make(map[string]byte),
+		blackIpMaps: make(map[string]byte),
 	}
 	// url反射
 	templateFuncs["url"] = func(name string) (string, error) {
@@ -27,8 +27,8 @@ type ServerMux struct {
 	tree            *routeTree        // 路由树
 	content         map[string]*route // 内容
 	templatesFolder string            // 模板文件夹
-	WhiteIpMaps     map[string]byte   // 白名单
-	BlackIpMaps     map[string]byte   // 黑名单
+	whiteIpMaps     map[string]byte   // 白名单
+	blackIpMaps     map[string]byte   // 黑名单
 }
 
 // 检查请求方式是否被允许
@@ -46,14 +46,14 @@ func (this *ServerMux) isMethodAllowed(method string, r *route) bool {
 
 // 是否允许ip访问
 func (this *ServerMux) isIpAllowed(ip string) bool {
-	if len(this.WhiteIpMaps) > 0 {
-		if _, ok := this.WhiteIpMaps[ip]; ok {
+	if len(this.whiteIpMaps) > 0 {
+		if _, ok := this.whiteIpMaps[ip]; ok {
 			return true
 		}
 		return false
 	}
-	if len(this.BlackIpMaps) > 0 {
-		if _, ok := this.BlackIpMaps[ip]; ok {
+	if len(this.blackIpMaps) > 0 {
+		if _, ok := this.blackIpMaps[ip]; ok {
 			return false
 		}
 		return true
@@ -143,7 +143,6 @@ func (this *ServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	con := &Context{writer: w, req: r, mux: this}
 	// 是否被放入名单
 	ip := con.GetRequestIp()
-	fmt.Println(fmt.Sprintf("来访ip:%s 白名单:%v", ip, this.WhiteIpMaps))
 	if !this.isIpAllowed(ip) {
 		fmt.Println("web: 非允许ip:[" + ip + "]已被拒绝")
 		return
