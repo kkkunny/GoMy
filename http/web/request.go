@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -234,10 +235,18 @@ func (this *Context) ReturnString(code int, msg string) error {
 	return err
 }
 
+// 返回错误
+func (this *Context) ReturnError(code int, msg string) error {
+	fmt.Printf("返回错误[%d]:[%s]\n", code, msg)
+	if msg == "" {
+		msg = "web server error ! code: " + strconv.Itoa(code)
+	}
+	return this.ReturnString(code, msg)
+}
+
 // 返回404
 func (this *Context) ReturnNotFound() error {
-	fmt.Printf("返回数据:[%s]\n", "404, Page not found")
-	return this.ReturnString(http.StatusNotFound, "404, Page not found")
+	return this.ReturnError(http.StatusNotFound, "404, Page not found")
 }
 
 // 请求方式不支持
