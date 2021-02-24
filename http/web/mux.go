@@ -143,6 +143,7 @@ func (this *ServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	con := &Context{writer: w, req: r, mux: this}
 	// 是否被放入名单
 	ip := con.GetRequestIp()
+	fmt.Println(fmt.Sprintf("来访ip:%s 白名单:%v", ip, this.WhiteIpMaps))
 	if !this.isIpAllowed(ip) {
 		fmt.Println("web: 非允许ip:[" + ip + "]已被拒绝")
 		return
