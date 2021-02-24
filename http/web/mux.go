@@ -144,7 +144,7 @@ func (this *ServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 是否被放入名单
 	ip := con.GetRequestIp()
 	if !this.isIpAllowed(ip) {
-		fmt.Println("非允许ip:[" + ip + "]已被拒绝")
+		fmt.Println("web: 非允许ip:[" + ip + "]已被拒绝")
 		return
 	}
 	// 路由参数
