@@ -257,6 +257,7 @@ func (this *Context) ReturnMethodNotAllowed() error {
 
 // 返回json
 func (this *Context) ReturnJson(code int, data interface{}) error {
+	this.SetOneHeader("content-type", "text/json")
 	this.SetStatusCode(code)
 	js, err := json.Marshal(data)
 	if err != nil {
