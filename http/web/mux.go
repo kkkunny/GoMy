@@ -140,12 +140,16 @@ func (this *ServerMux) Handle(name string, methods []string, pattern string, han
 // 路由
 func (this *ServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 查找路由节点
-	rt, params, err := this.tree.SearchRouteNode(r.URL.Path)
-	con := NewContext(w, r, params, this)
+	con := &Context{writer: w, req: r, mux: this}
 	// 是否被放入名单
-	if !this.isIpAllowed(con.GetRequestIp()) {
+	ip := con.GetRequestIp()
+	if !this.isIpAllowed(ip) {
+		fmt.Println("非允许ip:[" + ip + "]已被拒绝")
 		return
 	}
+	// 路由参数
+	rt, params, err := this.tree.SearchRouteNode(r.URL.Path)
+	con.routeParams = params
 	// 没有路由节点
 	if err != nil || rt == nil || rt.handler == nil {
 		_ = con.ReturnNotFound()
