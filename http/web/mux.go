@@ -14,6 +14,7 @@ func NewServerMux() *ServerMux {
 		content:     make(map[string]*route),
 		whiteIpMaps: make(map[string]byte),
 		blackIpMaps: make(map[string]byte),
+		Log:         log.New(os.Stdout),
 	}
 	// url反射
 	templateFuncs["url"] = func(name string) (string, error) {

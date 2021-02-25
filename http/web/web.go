@@ -16,14 +16,7 @@ type Middleware struct {
 
 // 新建一个默认配置的服务器
 func NewDefault() *Web {
-	serveMux := NewServerMux()
-	server := &http.Server{
-		Addr:    "127.0.0.1:8080",
-		Handler: serveMux,
-	}
-	web := &Web{server: server, serveMux: serveMux}
-	web.AddMiddleware("ReqLog", MidRequestLog)
-	return web
+	return New("127.0.0.1:8080")
 }
 
 // 新建一个服务器
