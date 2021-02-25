@@ -2,7 +2,7 @@ package web
 
 import (
 	"errors"
-	"fmt"
+	"github.com/kkkunny/GoMy/log"
 	"net/http"
 	"os"
 )
@@ -29,6 +29,7 @@ type ServerMux struct {
 	templatesFolder string            // 模板文件夹
 	whiteIpMaps     map[string]byte   // 白名单
 	blackIpMaps     map[string]byte   // 黑名单
+	Log             *log.Logger       // 日志管理器
 }
 
 // 检查请求方式是否被允许
@@ -140,11 +141,11 @@ func (this *ServerMux) Handle(name string, methods []string, pattern string, han
 // 路由
 func (this *ServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 查找路由节点
-	con := &Context{writer: w, req: r, mux: this}
+	con := &Context{writer: w, req: r, mux: this, Log: this.Log}
 	// 是否被放入名单
 	ip := con.GetRequestIp()
 	if !this.isIpAllowed(ip) {
-		fmt.Println("web: 非允许ip:[" + ip + "]已被拒绝")
+		_ = this.Log.WriteInfoLog("来自非允许ip[" + ip + "]的访问已被拒绝！")
 		return
 	}
 	// 路由参数
@@ -162,6 +163,6 @@ func (this *ServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	// 调用路由函数
 	if err = rt.handler.Handle(con); err != nil {
-		fmt.Println("web server error: " + err.Error())
+		_ = this.Log.WriteWarningLog("error: " + err.Error())
 	}
 }

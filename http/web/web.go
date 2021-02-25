@@ -124,9 +124,8 @@ func (this *Web) NotAllowIp(ip ...string) {
 
 // 开始监听
 func (this *Web) Run() {
-	fmt.Println("web: Web server starts running......")
-	fmt.Println("web: address:http://" + this.server.Addr + "/")
-	fmt.Println()
+	_ = this.serveMux.Log.WriteInfoLog("Web server starts running...")
+	_ = this.serveMux.Log.WriteInfoLog("listen on: http://" + this.server.Addr + "/")
 	if err := this.server.ListenAndServe(); err != nil {
 		panic(err)
 	}
