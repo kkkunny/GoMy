@@ -2,7 +2,7 @@ package web
 
 import (
 	"errors"
-	"github.com/kkkunny/GoMy/log"
+	"fmt"
 	"net/http"
 	"os"
 )
@@ -14,7 +14,6 @@ func NewServerMux() *ServerMux {
 		content:     make(map[string]*route),
 		whiteIpMaps: make(map[string]byte),
 		blackIpMaps: make(map[string]byte),
-		Log:         log.New(os.Stdout),
 	}
 	// url反射
 	templateFuncs["url"] = func(name string) (string, error) {
@@ -30,7 +29,6 @@ type ServerMux struct {
 	templatesFolder string            // 模板文件夹
 	whiteIpMaps     map[string]byte   // 白名单
 	blackIpMaps     map[string]byte   // 黑名单
-	Log             *log.Logger       // 日志管理器
 }
 
 // 检查请求方式是否被允许
@@ -142,11 +140,11 @@ func (this *ServerMux) Handle(name string, methods []string, pattern string, han
 // 路由
 func (this *ServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 查找路由节点
-	con := &Context{writer: w, req: r, mux: this, Log: this.Log}
+	con := &Context{writer: w, req: r, mux: this}
 	// 是否被放入名单
 	ip := con.GetRequestIp()
 	if !this.isIpAllowed(ip) {
-		_ = this.Log.WriteInfoLog("来自非允许ip[" + ip + "]的访问已被拒绝！")
+		fmt.Printf("来自非允许ip[%s]的访问已被拒绝！\n", ip)
 		return
 	}
 	// 路由参数
@@ -164,6 +162,6 @@ func (this *ServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	// 调用路由函数
 	if err = rt.handler.Handle(con); err != nil {
-		_ = this.Log.WriteWarningLog("error: " + err.Error())
+		fmt.Println("return error: " + err.Error())
 	}
 }

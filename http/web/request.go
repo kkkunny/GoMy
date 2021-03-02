@@ -57,7 +57,6 @@ func NewContext(w http.ResponseWriter, r *http.Request, params map[string]string
 		req:         r,
 		routeParams: params,
 		mux:         mux,
-		Log:         log,
 	}
 }
 
@@ -67,7 +66,6 @@ type Context struct {
 	req         *http.Request
 	routeParams map[string]string
 	mux         *ServerMux
-	Log         *log.Logger
 }
 
 // 获取请求方式
@@ -232,7 +230,7 @@ func (this *Context) SetStatusCode(code int) {
 
 // 返回字符串
 func (this *Context) ReturnString(code int, msg string) error {
-	_ = this.Log.WriteInfoLog(fmt.Sprintf("返回数据:[%s]\n", msg))
+	fmt.Printf("返回数据:[%s]\n", msg)
 	this.SetStatusCode(code)
 	_, err := io.WriteString(this.writer, msg)
 	return err
@@ -240,7 +238,7 @@ func (this *Context) ReturnString(code int, msg string) error {
 
 // 返回错误
 func (this *Context) ReturnError(code int, msg string) error {
-	_ = this.Log.WriteInfoLog(fmt.Sprintf("返回错误[%d]:[%s]\n", code, msg))
+	fmt.Printf("返回错误[%d]:[%s]\n", code, msg)
 	if msg == "" {
 		msg = "web server error ! code: " + strconv.Itoa(code)
 	}
@@ -265,7 +263,7 @@ func (this *Context) ReturnJson(code int, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	_ = this.Log.WriteInfoLog(fmt.Sprintf("返回数据:[%s]\n", string(js)))
+	fmt.Printf("返回数据:[%s]\n", string(js))
 	_, err = this.writer.Write(js)
 	return err
 }
@@ -286,14 +284,14 @@ func (this *Context) ReturnFile(path string, name ...string) error {
 	} else {
 		filename = info.Name()
 	}
-	_ = this.Log.WriteInfoLog(fmt.Sprintf("返回文件:[文件名: %s, 大小: %d]\n", filename, info.Size()))
+	fmt.Printf("返回文件:[文件名: %s, 大小: %d]\n", filename, info.Size())
 	http.ServeContent(this.writer, this.req, filename, time.Time{}, file)
 	return nil
 }
 
 // 返回数据
 func (this *Context) ReturnContent(reader io.ReadSeeker, name string) error {
-	_ = this.Log.WriteInfoLog(fmt.Sprintf("返回数据:[数据名: %s]\n", name))
+	fmt.Printf("返回数据:[数据名: %s]\n", name)
 	http.ServeContent(this.writer, this.req, name, time.Time{}, reader)
 	return nil
 }
@@ -304,7 +302,7 @@ func (this *Context) ReturnTemplate(data interface{}, path ...string) error {
 		return errors.New("no template")
 	}
 	mainT := path[0] // 主模板
-	_ = this.Log.WriteInfoLog(fmt.Sprintf("返回数据:[模板: %s]\n", strings.Join(path, " ")))
+	fmt.Printf("返回数据:[模板: %s]\n", strings.Join(path, " "))
 	if this.mux.templatesFolder != "" {
 		for i, p := range path {
 			path[i] = this.mux.templatesFolder + p
@@ -320,7 +318,7 @@ func (this *Context) ReturnTemplate(data interface{}, path ...string) error {
 
 // 重定向
 func (this *Context) ReturnRedirect(url string) error {
-	_ = this.Log.WriteInfoLog(fmt.Sprintf("重定向至:[url: %s]\n", url))
+	fmt.Printf("重定向至:[url: %s]\n", url)
 	// 在路由中寻找
 	if route, ok := this.mux.content[url]; ok {
 		http.Redirect(this.writer, this.req, route.pattern, http.StatusMovedPermanently)
@@ -328,4 +326,13 @@ func (this *Context) ReturnRedirect(url string) error {
 		http.Redirect(this.writer, this.req, url, http.StatusMovedPermanently)
 	}
 	return nil
+}
+
+// 是否是websocket
+func (this *Context) IsWebSocket() bool {
+	if strings.Contains(strings.ToLower(this.GetOneReqHeader("Connection")), "upgrade") &&
+		strings.EqualFold(this.GetOneReqHeader("Upgrade"), "websocket") {
+		return true
+	}
+	return false
 }

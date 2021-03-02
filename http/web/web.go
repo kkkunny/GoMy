@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	"golang.org/x/net/websocket"
 	"net/http"
 	"net/url"
 	"os"
@@ -46,6 +47,23 @@ func (this *Web) Route(name string, methods []string, pattern string, handler Ha
 	}
 	// 路由
 	if err := this.serveMux.Handle(name, methods, pattern, handler); err != nil {
+		panic(err)
+	}
+}
+
+// 路由websocket
+func (this *Web) RouteWebSocket(name string, pattern string, handler websocket.Handler) {
+	tempHandler := func(ctx *Context) error {
+		if ctx.IsWebSocket() { // websocket
+			fmt.Printf("conn: 来自[%s]的websocket连接请求\n", ctx.GetRequestIp())
+			handler.ServeHTTP(ctx.writer, ctx.req)
+		} else {
+			return ctx.ReturnError(400, "error websocket connection")
+		}
+		return nil
+	}
+	// 路由
+	if err := this.serveMux.Handle(name, []string{"GET"}, pattern, tempHandler); err != nil {
 		panic(err)
 	}
 }
@@ -117,8 +135,8 @@ func (this *Web) NotAllowIp(ip ...string) {
 
 // 开始监听
 func (this *Web) Run() {
-	_ = this.serveMux.Log.WriteInfoLog("Web server starts running...")
-	_ = this.serveMux.Log.WriteInfoLog("listen on: http://" + this.server.Addr + "/")
+	fmt.Println("Web server starts running...")
+	fmt.Println("listen on: http://" + this.server.Addr + "/")
 	if err := this.server.ListenAndServe(); err != nil {
 		panic(err)
 	}

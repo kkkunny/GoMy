@@ -16,6 +16,7 @@ import (
 // 将http包中的Response转换成Response
 func HttpToResponse(http_response *http.Response, charsets ...string) *Response {
 	var response Response
+	http_response.Location()
 	// 状态码
 	response.Status = strconv.Itoa(http_response.StatusCode)
 	// 头
